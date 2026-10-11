@@ -8,7 +8,10 @@ import { readFileSync } from "node:fs";
 var colorEnabled = !process.env["NO_COLOR"];
 var CSI = "\x1B[";
 var RESET = colorEnabled ? `${CSI}0m` : "";
-var ANSI_RE = /\[[0-9;]*m/g;
+var OSC = "\x1B]";
+var ST = "\x1B\\";
+var LINK_END = `${OSC}8;;${ST}`;
+var ANSI_RE = /\u001b\[[0-9;]*m|\u001b\]8;[^\u0007\u001b]*(?:\u0007|\u001b\\)/g;
 var ZERO_WIDTH_RE = /^[\p{Mn}\p{Me}​-‍︀-️]$/u;
 var WIDE_RE = /^[\p{Emoji_Presentation}ᄀ-ᅟ⺀-〾ぁ-㏿㐀-䶿一-鿿ꀀ-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦\u{20000}-\u{3FFFD}]$/u;
 function charWidth(ch) {
@@ -48,7 +51,19 @@ function truncate(text, width) {
   let visible = 0;
   let i = 0;
   let sawEscape = false;
+  let inLink = false;
   while (i < text.length) {
+    if (text.charCodeAt(i) === 27 && text[i + 1] === "]") {
+      const st = text.indexOf("\x1B\\", i + 2);
+      const bel = text.indexOf("\x07", i + 2);
+      const end = bel !== -1 && (st === -1 || bel < st) ? bel + 1 : st === -1 ? -1 : st + 2;
+      if (end === -1) break;
+      const seq = text.slice(i, end);
+      inLink = !/^\u001b\]8;[^;]*;(?:\u0007|\u001b\\)$/.test(seq);
+      out += seq;
+      i = end;
+      continue;
+    }
     if (text.charCodeAt(i) === 27) {
       const end = text.indexOf("m", i);
       if (end === -1) break;
@@ -64,7 +79,7 @@ function truncate(text, width) {
     visible += w;
     i += ch.length;
   }
-  return `${out}${sawEscape ? RESET : ""}\u2026`;
+  return `${out}${inLink ? LINK_END : ""}${sawEscape ? RESET : ""}\u2026`;
 }
 function printLines(lines) {
   const width = terminalWidth();

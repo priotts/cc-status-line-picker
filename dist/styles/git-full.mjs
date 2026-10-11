@@ -28,11 +28,13 @@ var DEFAULT_CONFIG = {
     staged: "\u25CF",
     modified: "\u25CB",
     untracked: "?",
+    conflict: "\u2717",
     ahead: "\u2191",
     behind: "\u2193",
     pr: "\u2442",
     worktree: "\u29C9",
-    fast: "\u26A1"
+    fast: "\u26A1",
+    agent: "@"
   },
   separator: " \xB7 ",
   barWidth: 10,
@@ -42,6 +44,8 @@ var DEFAULT_CONFIG = {
   showCost: true,
   showLimits: true,
   showResetTime: true,
+  showSession: true,
+  links: true,
   defaultBranches: ["main", "master"],
   thresholds: { warn: 70, danger: 90 }
 };
@@ -92,6 +96,8 @@ function merge(base, override) {
       case "showCost":
       case "showLimits":
       case "showResetTime":
+      case "showSession":
+      case "links":
         if (typeof value === "boolean") out[key] = value;
         break;
     }
@@ -146,6 +152,14 @@ function fg(spec, text) {
   if (!colorEnabled || !text) return text;
   return `${CSI}${fgCode(spec)}m${text}${RESET}`;
 }
+var OSC = "\x1B]";
+var ST = "\x1B\\";
+var LINK_END = `${OSC}8;;${ST}`;
+function link(url, text) {
+  if (!colorEnabled || !text || !url || !loadConfig().links) return text;
+  if (!/^https?:\/\/[^\s\u0000-\u001f\u007f]+$/.test(url)) return text;
+  return `${OSC}8;;${url}${ST}${text}${LINK_END}`;
+}
 var c = {
   accent: (t) => fg(loadConfig().colors.accent, t),
   ok: (t) => fg(loadConfig().colors.ok, t),
@@ -153,7 +167,7 @@ var c = {
   danger: (t) => fg(loadConfig().colors.danger, t),
   muted: (t) => fg(loadConfig().colors.muted, t)
 };
-var ANSI_RE = /\[[0-9;]*m/g;
+var ANSI_RE = /\u001b\[[0-9;]*m|\u001b\]8;[^\u0007\u001b]*(?:\u0007|\u001b\\)/g;
 var ZERO_WIDTH_RE = /^[\p{Mn}\p{Me}​-‍︀-️]$/u;
 var WIDE_RE = /^[\p{Emoji_Presentation}ᄀ-ᅟ⺀-〾ぁ-㏿㐀-䶿一-鿿ꀀ-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦\u{20000}-\u{3FFFD}]$/u;
 function charWidth(ch) {
@@ -193,7 +207,19 @@ function truncate(text, width) {
   let visible = 0;
   let i = 0;
   let sawEscape = false;
+  let inLink = false;
   while (i < text.length) {
+    if (text.charCodeAt(i) === 27 && text[i + 1] === "]") {
+      const st = text.indexOf("\x1B\\", i + 2);
+      const bel = text.indexOf("\x07", i + 2);
+      const end = bel !== -1 && (st === -1 || bel < st) ? bel + 1 : st === -1 ? -1 : st + 2;
+      if (end === -1) break;
+      const seq = text.slice(i, end);
+      inLink = !/^\u001b\]8;[^;]*;(?:\u0007|\u001b\\)$/.test(seq);
+      out += seq;
+      i = end;
+      continue;
+    }
     if (text.charCodeAt(i) === 27) {
       const end = text.indexOf("m", i);
       if (end === -1) break;
@@ -209,7 +235,7 @@ function truncate(text, width) {
     visible += w;
     i += ch.length;
   }
-  return `${out}${sawEscape ? RESET : ""}\u2026`;
+  return `${out}${inLink ? LINK_END : ""}${sawEscape ? RESET : ""}\u2026`;
 }
 function printLines(lines) {
   const width = terminalWidth();
@@ -295,6 +321,7 @@ function parseStatus(output) {
     staged: 0,
     modified: 0,
     untracked: 0,
+    conflicted: 0,
     clean: true
   };
   for (const line of output.split("\n")) {
@@ -319,10 +346,14 @@ function parseStatus(output) {
       info.untracked += 1;
       continue;
     }
+    if (x === "U" || y === "U" || x === "A" && y === "A" || x === "D" && y === "D") {
+      info.conflicted += 1;
+      continue;
+    }
     if (x && x !== " ") info.staged += 1;
     if (y && y !== " ") info.modified += 1;
   }
-  info.clean = info.staged === 0 && info.modified === 0 && info.untracked === 0;
+  info.clean = info.staged === 0 && info.modified === 0 && info.untracked === 0 && info.conflicted === 0;
   return info;
 }
 function getGitInfo(cwd) {
@@ -342,6 +373,18 @@ function getGitInfo(cwd) {
   }
   writeCache(file, info);
   return info;
+}
+
+// src/lib/segments.ts
+var WINDOW_SECONDS = { "5h": 5 * 3600, "7d": 7 * 86400 };
+function fileMarkers(git2) {
+  const { icons } = loadConfig();
+  const out = [];
+  if (git2.conflicted > 0) out.push(c.danger(`${icons.conflict}${git2.conflicted}`));
+  if (git2.staged > 0) out.push(c.ok(`${icons.staged}${git2.staged}`));
+  if (git2.modified > 0) out.push(c.warn(`${icons.modified}${git2.modified}`));
+  if (git2.untracked > 0) out.push(c.muted(`${icons.untracked}${git2.untracked}`));
+  return out;
 }
 
 // src/styles/git-full.ts
@@ -366,18 +409,15 @@ run((input) => {
     if (git2.ahead > 0) divergence.push(c.accent(`${cfg.icons.ahead}${git2.ahead}`));
     if (git2.behind > 0) divergence.push(c.warn(`${cfg.icons.behind}${git2.behind}`));
     if (divergence.length > 0) parts.push(divergence.join(""));
-    const changes = [];
-    if (git2.staged > 0) changes.push(c.ok(`${cfg.icons.staged}${git2.staged}`));
-    if (git2.modified > 0) changes.push(c.warn(`${cfg.icons.modified}${git2.modified}`));
-    if (git2.untracked > 0) changes.push(c.muted(`${cfg.icons.untracked}${git2.untracked}`));
+    const changes = fileMarkers(git2);
     parts.push(changes.length > 0 ? changes.join(" ") : c.muted("clean"));
   }
   const worktree = input.workspace?.git_worktree ?? input.worktree?.name;
   if (worktree) parts.push(c.muted(`${cfg.icons.worktree} ${worktree}`));
   if (typeof input.pr?.number === "number") {
     const state = input.pr.review_state;
-    const label = `${cfg.icons.pr} #${input.pr.number}`;
-    parts.push(state ? `${c.accent(label)} ${reviewColor(state)(state)}` : c.accent(label));
+    const label = link(input.pr.url, c.accent(`${cfg.icons.pr} #${input.pr.number}`));
+    parts.push(state ? `${label} ${reviewColor(state)(state)}` : label);
   }
   printLines([join(parts, " ")]);
 });

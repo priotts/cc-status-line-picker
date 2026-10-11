@@ -4,12 +4,16 @@
  * name when you are inside one, and the open pull request for the branch.
  *
  *   ▸ my-project ⎇ main ↑2 ↓1 ●3 ○1 ?2 ⧉ feature-xyz ⑂ #1234 pending
+ *
+ * Merge conflicts show first, in red (`✗2`). The PR number is a clickable link
+ * in terminals that support OSC 8.
  */
 import { run } from '../lib/input.js';
 import { loadConfig } from '../lib/config.js';
-import { c } from '../lib/ansi.js';
+import { c, link } from '../lib/ansi.js';
 import { getGitInfo } from '../lib/git.js';
 import { basename, join, printLines } from '../lib/format.js';
+import { fileMarkers } from '../lib/segments.js';
 import type { ReviewState } from '../types.js';
 
 /** Review states map onto the same green/yellow/red scale used elsewhere. */
@@ -38,10 +42,7 @@ run((input) => {
     if (git.behind > 0) divergence.push(c.warn(`${cfg.icons.behind}${git.behind}`));
     if (divergence.length > 0) parts.push(divergence.join(''));
 
-    const changes: string[] = [];
-    if (git.staged > 0) changes.push(c.ok(`${cfg.icons.staged}${git.staged}`));
-    if (git.modified > 0) changes.push(c.warn(`${cfg.icons.modified}${git.modified}`));
-    if (git.untracked > 0) changes.push(c.muted(`${cfg.icons.untracked}${git.untracked}`));
+    const changes = fileMarkers(git);
     parts.push(changes.length > 0 ? changes.join(' ') : c.muted('clean'));
   }
 
@@ -52,8 +53,8 @@ run((input) => {
 
   if (typeof input.pr?.number === 'number') {
     const state = input.pr.review_state;
-    const label = `${cfg.icons.pr} #${input.pr.number}`;
-    parts.push(state ? `${c.accent(label)} ${reviewColor(state)(state)}` : c.accent(label));
+    const label = link(input.pr.url, c.accent(`${cfg.icons.pr} #${input.pr.number}`));
+    parts.push(state ? `${label} ${reviewColor(state)(state)}` : label);
   }
 
   printLines([join(parts, ' ')]);

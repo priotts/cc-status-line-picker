@@ -10,7 +10,8 @@
  *   - emit no ANSI sequences when NO_COLOR is set.
  */
 import { execFileSync } from 'node:child_process';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, mkdtempSync, writeFileSync, rmSync } from 'node:fs';
+import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -20,7 +21,10 @@ const gallery = JSON.parse(readFileSync(path.join(root, 'styles.json'), 'utf8'))
 const sample = JSON.parse(readFileSync(path.join(root, 'examples', 'session.json'), 'utf8'));
 delete sample.$comment;
 
-const ANSI_RE = /\[[0-9;]*m/g;
+/** SGR colors and OSC 8 hyperlinks, the same set src/lib/ansi.ts strips. */
+const ANSI_RE = /\u001b\[[0-9;]*m|\u001b\]8;[^\u0007\u001b]*(?:\u0007|\u001b\\)/g;
+const OSC8_OPEN = /\u001b\]8;;[^\u0007\u001b]+\u001b\\/g;
+const OSC8_CLOSE = /\u001b\]8;;\u001b\\/g;
 
 /**
  * Terminal columns, the same rule as src/lib/ansi.ts: astral characters count
@@ -77,6 +81,21 @@ const CASES = [
         used_percentage: 97.4,
       },
       exceeds_200k_tokens: true,
+    }),
+  },
+  {
+    name: 'agent and vim mode',
+    input: JSON.stringify({
+      ...sample,
+      agent: { name: 'reviewer' },
+      vim: { mode: 'INSERT' },
+    }),
+  },
+  {
+    name: 'PR with a hostile url',
+    input: JSON.stringify({
+      ...sample,
+      pr: { number: 7, url: 'javascript:alert(1)\u001b]8;;x\u001b\\', review_state: 'approved' },
     }),
   },
   {
@@ -182,10 +201,85 @@ for (const style of gallery.styles) {
     }
   }
 
+  // Every hyperlink opened must be closed, including when the cut lands inside
+  // one, or the rest of the terminal row turns into a link.
+  // The cut is aimed at the middle of `#1234`, wherever this style puts it.
+  const full = runStyle(file, JSON.stringify(sample), { COLUMNS: '300' });
+  const cuts = [120];
+  for (const line of full.split('\n')) {
+    const at = displayWidth(line.replace(ANSI_RE, '').split(`#${sample.pr.number}`)[0] ?? '');
+    if (line.includes(`#${sample.pr.number}`) && at + 3 > 20) cuts.push(at + 3);
+  }
+  for (const cols of cuts) {
+    const out = runStyle(file, JSON.stringify(sample), { COLUMNS: String(cols) });
+    const opened = (out.match(OSC8_OPEN) ?? []).length;
+    const closed = (out.match(OSC8_CLOSE) ?? []).length;
+    check(style.id, `links COLUMNS=${cols}`, opened === closed, `${opened} link(s) opened, ${closed} closed`);
+  }
+
   // NO_COLOR must strip every escape sequence.
   const plain = runStyle(file, JSON.stringify(sample), { COLUMNS: '120', NO_COLOR: '1' });
   check(style.id, 'NO_COLOR', !ANSI_RE.test(plain), 'emitted ANSI escapes with NO_COLOR set');
   ANSI_RE.lastIndex = 0;
+}
+
+// Feature checks against specific styles.
+const styleFile = (id) => path.join(root, gallery.styles.find((s) => s.id === id).file);
+const plainOf = (out) => out.replace(ANSI_RE, '');
+
+{
+  // The PR number links to the PR, and only to an http(s) url.
+  const out = runStyle(styleFile('git/full'), JSON.stringify(sample), { COLUMNS: '200' });
+  check('git/full', 'pr link', out.includes(`\u001b]8;;${sample.pr.url}\u001b\\`), 'PR number is not linked');
+  const hostile = runStyle(styleFile('git/full'), CASES.find((c) => c.name === 'PR with a hostile url').input, {
+    COLUMNS: '200',
+  });
+  check('git/full', 'pr link', !hostile.includes('\u001b]8;;'), 'linked a non-http url');
+  const noLinks = runStyle(styleFile('git/full'), JSON.stringify(sample), { COLUMNS: '200', NO_COLOR: '1' });
+  check('git/full', 'pr link', !noLinks.includes('\u001b]'), 'linked under NO_COLOR');
+}
+
+{
+  // Agent and vim mode reach the styles that show them; absent, they leave no trace.
+  const input = CASES.find((c) => c.name === 'agent and vim mode').input;
+  for (const id of ['minimal/basic', 'fancy/multiline', 'fancy/dashboard']) {
+    const out = plainOf(runStyle(styleFile(id), input, { COLUMNS: '200' }));
+    check(id, 'session', out.includes('@reviewer') && out.includes('INSERT'), `missing agent/vim: ${out}`);
+    const plain = plainOf(runStyle(styleFile(id), JSON.stringify(sample), { COLUMNS: '200' }));
+    check(id, 'session', !plain.includes('@') && !plain.includes('INSERT'), `stray session marker: ${plain}`);
+  }
+}
+
+{
+  // A real merge conflict is counted as a conflict, not as staged + modified.
+  const repo = mkdtempSync(path.join(os.tmpdir(), 'cc-slp-conflict-'));
+  const g = (...args) =>
+    execFileSync('git', ['-C', repo, '-c', 'user.name=t', '-c', 'user.email=t@t', ...args], {
+      stdio: 'ignore',
+    });
+  try {
+    g('init', '-q', '-b', 'main');
+    writeFileSync(path.join(repo, 'f.txt'), 'base\n');
+    g('add', '.');
+    g('commit', '-qm', 'base');
+    g('checkout', '-qb', 'other');
+    writeFileSync(path.join(repo, 'f.txt'), 'other\n');
+    g('commit', '-qam', 'other');
+    g('checkout', '-q', 'main');
+    writeFileSync(path.join(repo, 'f.txt'), 'main\n');
+    g('commit', '-qam', 'main');
+    try {
+      g('merge', '-q', 'other');
+    } catch {
+      // The conflict is the point.
+    }
+    const input = JSON.stringify({ ...sample, cwd: repo, workspace: { current_dir: repo } });
+    const out = plainOf(runStyle(styleFile('git/full'), input, { COLUMNS: '200' }));
+    check('git/full', 'conflict', out.includes('✗1'), `conflict not shown: ${out}`);
+    check('git/full', 'conflict', !out.includes('●') && !out.includes('○'), `conflict double-counted: ${out}`);
+  } finally {
+    rmSync(repo, { recursive: true, force: true });
+  }
 }
 
 if (failures > 0) {

@@ -54,7 +54,7 @@
       "id": "git/full",
       "category": "git",
       "name": "Full",
-      "description": "Branch, ahead/behind, staged/modified/untracked counts, worktree and open PR.",
+      "description": "Branch, ahead/behind, conflict/staged/modified/untracked counts, worktree and open PR (clickable).",
       "file": "dist/styles/git-full.mjs",
       "lines": 1,
       "requiresNerdFont": false

@@ -93,6 +93,24 @@ export function dim(text: string): string {
   return `${CSI}2m${text}${RESET}`;
 }
 
+/** Operating System Command introducer and String Terminator, for OSC 8 links. */
+const OSC = '\u001b]';
+const ST = '\u001b\\';
+
+/** Closes an OSC 8 hyperlink; `truncate` emits it when a cut lands inside one. */
+export const LINK_END = `${OSC}8;;${ST}`;
+
+/**
+ * Makes `text` a clickable OSC 8 hyperlink to `url`. Terminals without OSC 8
+ * support show the text unchanged. Off under NO_COLOR (the output must stay
+ * plain text) and with `links: false`; only http(s) URLs are linked.
+ */
+export function link(url: string | null | undefined, text: string): string {
+  if (!colorEnabled || !text || !url || !loadConfig().links) return text;
+  if (!/^https?:\/\/[^\s\u0000-\u001f\u007f]+$/.test(url)) return text;
+  return `${OSC}8;;${url}${ST}${text}${LINK_END}`;
+}
+
 /** Shorthands for the semantic roles defined in config.json. */
 export const c = {
   accent: (t: string) => fg(loadConfig().colors.accent, t),
@@ -118,7 +136,11 @@ export function thresholdSpec(pct: number): string {
   return colors.ok;
 }
 
-const ANSI_RE = /\[[0-9;]*m/g;
+/**
+ * SGR color sequences plus OSC 8 hyperlink sequences, which end in ST (ESC \\)
+ * or BEL. Neither takes a column.
+ */
+const ANSI_RE = /\u001b\[[0-9;]*m|\u001b\]8;[^\u0007\u001b]*(?:\u0007|\u001b\\)/g;
 
 /** Combining marks, zero-width joiners and variation selectors take no column. */
 const ZERO_WIDTH_RE = /^[\p{Mn}\p{Me}​-‍︀-️]$/u;

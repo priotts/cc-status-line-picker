@@ -19,11 +19,13 @@
     "staged": "●",
     "modified": "○",
     "untracked": "?",
+    "conflict": "✗",
     "ahead": "↑",
     "behind": "↓",
     "pr": "⑂",
     "worktree": "⧉",
-    "fast": "⚡"
+    "fast": "⚡",
+    "agent": "@"
   },
   "separator": " · ",
   "barWidth": 10,
@@ -36,6 +38,8 @@
   "showCost": true,
   "showLimits": true,
   "showResetTime": true,
+  "showSession": true,
+  "links": true,
   "defaultBranches": [
     "main",
     "master"

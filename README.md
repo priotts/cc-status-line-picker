@@ -36,6 +36,10 @@ percentages turn amber at 70 and red at 90.
 <img src="docs/previews/minimal-basic.svg" alt="minimal/basic ◆ Opus · cc-status-line-picker · 38% ctx · 5h 24% · 7d 41%" width="760">
 <img src="docs/previews/minimal-compact.svg" alt="minimal/compact cc-status-line-picker 38%" width="760">
 
+`basic` appends the effort level to the model, and shows the running agent (`@reviewer`)
+and the vim mode (`INSERT`) when Claude Code sends them. On a plain session those take no
+space at all.
+
 `compact` imports no ANSI helper at all, so it emits zero escape codes whatever your
 terminal or `NO_COLOR` say. Neither style calls git. They are the two cheapest to run.
 
@@ -47,10 +51,17 @@ terminal or `NO_COLOR` say. Neither style calls git. They are the two cheapest t
 `branch` gives you one thing: where you are, plus a yellow `*` when the tree is dirty. That
 asterisk is the entirety of what it reports about your working tree.
 
-`full` counts instead. `↑↓` for divergence from upstream, `●` staged, `○` modified, `?`
-untracked, and the literal word `clean` when there is nothing to report. Then the worktree
-name, then the pull request with its review state coloured by outcome. PR data arrives in
-Claude Code's payload; the style never shells out to `gh` and never touches the network.
+`full` counts instead. `↑↓` for divergence from upstream, `✗` merge conflicts in red,
+`●` staged, `○` modified, `?` untracked, and the literal word `clean` when there is nothing
+to report. A conflicted file counts once, as a conflict, not as staged and modified both.
+Then the worktree name, then the pull request with its review state coloured by outcome.
+PR data arrives in Claude Code's payload; the style never shells out to `gh` and never
+touches the network.
+
+The PR number is a clickable link to the pull request (OSC 8) in terminals that support it:
+iTerm2, WezTerm, kitty, Ghostty, Windows Terminal, recent GNOME Terminal and Konsole. Where
+they do not, it is plain text. The same link appears wherever a style shows the PR:
+`git/full`, `fancy/multiline` and `fancy/dashboard`. Set `"links": false` to turn it off.
 
 ### usage
 
@@ -67,15 +78,15 @@ answers how long you have, the clock answers when you can start again. Set
 `showResetTime: false` to drop the clock half.
 
 `pace` is the projection without any bars. Read `41%→61%` as "at 41, heading for 61". It is
-the only style that surfaces `effort.level`, the `high` after `Opus`, and the only one
-where model, effort and fast mode share a single segment. They read as one question, "what
+the only style where model, effort and fast mode share a single segment. They read as one question, "what
 am I talking to", so they get one answer. Everything except the numbers is grey.
 
 ### fancy
 
 <img src="docs/previews/fancy-multiline.svg" alt="fancy/multiline ◆ Opus ▸ cc-status-line-picker ⎇ main ○1 ⑂ #1234" width="760">
 
-Identity and repository state on top, consumption underneath. Each line truncates
+Identity and repository state on top, consumption underneath. The top row also carries the
+session name when you have set one with `/rename`, plus the agent and vim mode when present. Each line truncates
 independently, so a narrow terminal loses the tail of a row rather than wrapping it.
 
 <img src="docs/previews/fancy-dashboard.svg" alt="fancy/dashboard ◆ Opus ▸ cc-status-line-picker ⎇ main ○1 ⑂ #1234" width="760">
@@ -201,7 +212,8 @@ the plugin, and removing the plugin.
   "icons": {
     "branch": "⎇", "model": "◆", "folder": "▸", "context": "▤", "cost": "$", "clock": "◴",
     "added": "+", "removed": "-", "staged": "●", "modified": "○", "untracked": "?",
-    "ahead": "↑", "behind": "↓", "pr": "⑂", "worktree": "⧉", "fast": "⚡"
+    "conflict": "✗", "ahead": "↑", "behind": "↓", "pr": "⑂", "worktree": "⧉", "fast": "⚡",
+    "agent": "@"
   },
   "separator": " · ",
   "barWidth": 10,
@@ -211,6 +223,8 @@ the plugin, and removing the plugin.
   "showCost": true,
   "showLimits": true,
   "showResetTime": true,
+  "showSession": true,
+  "links": true,
   "defaultBranches": ["main", "master"],
   "thresholds": { "warn": 70, "danger": 90 }
 }
@@ -226,6 +240,10 @@ Colours accept a name, a 256-colour index as a string (`"123"`), or a raw SGR se
 black terminal. `"muted": "245"` is the practical fix. [`NO_COLOR`](https://no-color.org)
 turns every colour helper into the identity function and the output stays readable as plain
 text.
+
+`showSession: false` hides the effort level, session name, agent and vim mode everywhere
+they appear. `links: false` prints the PR number as plain text; links are also off under
+`NO_COLOR`, and only `http(s)` URLs are ever linked.
 
 `defaultBranches` is a list because the convention is not universal; trunk, develop and
 integration all exist. Only `fancy/powerline` reads it.
