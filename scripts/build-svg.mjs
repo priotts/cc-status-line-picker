@@ -145,18 +145,23 @@ sample.rate_limits.seven_day.resets_at = hour + 2 * 86_400 + 5 * 3600;
 // output therefore depends on the working tree at generation time.
 sample.cwd = sample.workspace.current_dir = root;
 
-rmSync(outDir, { recursive: true, force: true });
-mkdirSync(outDir, { recursive: true });
-
-for (const style of gallery.styles) {
-  const output = execFileSync(process.execPath, ['--import', localePreload, path.join(root, style.file)], {
+// Render everything before touching docs/previews/: deleting the old files
+// first would make them show up as uncommitted changes in the git-aware styles.
+const rendered = gallery.styles.map((style) => ({
+  style,
+  output: execFileSync(process.execPath, ['--import', localePreload, path.join(root, style.file)], {
     input: JSON.stringify(sample),
     encoding: 'utf8',
     timeout: 20_000,
     env: { ...process.env, COLUMNS: '200', FORCE_COLOR: '3', NO_COLOR: '' },
     windowsHide: true,
-  });
+  }),
+}));
 
+rmSync(outDir, { recursive: true, force: true });
+mkdirSync(outDir, { recursive: true });
+
+for (const { style, output } of rendered) {
   const file = path.join(outDir, `${style.id.replace('/', '-')}.svg`);
   writeFileSync(file, `${renderSvg(parseOutput(output))}\n`);
   console.log(`  ${style.id.padEnd(18)} ${path.relative(root, file)}`);
