@@ -2,7 +2,7 @@
  * Formatting helpers shared by every style.
  */
 import { loadConfig } from './config.js';
-import { visibleLength, stripAnsi, RESET } from './ansi.js';
+import { visibleLength, stripAnsi, charWidth, RESET } from './ansi.js';
 
 /** Clamp a possibly-null percentage into 0..100. */
 export function pct(value: number | null | undefined): number {
@@ -128,7 +128,8 @@ export function terminalWidth(): number {
 /**
  * Truncate to the visible width, keeping ANSI sequences intact.
  * Walks the string once, copying escape sequences for free and counting only
- * printable characters, then appends a reset so color never bleeds.
+ * printable characters by the columns they take, then appends a reset so color
+ * never bleeds.
  */
 export function truncate(text: string, width?: number): string {
   const max = width ?? terminalWidth();
@@ -141,7 +142,7 @@ export function truncate(text: string, width?: number): string {
   let i = 0;
   let sawEscape = false;
 
-  while (i < text.length && visible < limit) {
+  while (i < text.length) {
     if (text.charCodeAt(i) === 0x1b) {
       const end = text.indexOf('m', i);
       if (end === -1) break;
@@ -150,9 +151,14 @@ export function truncate(text: string, width?: number): string {
       i = end + 1;
       continue;
     }
-    out += text[i];
-    visible += 1;
-    i += 1;
+    // Whole code points only: slicing by UTF-16 unit would split a surrogate
+    // pair and print U+FFFD. A wide character that does not fit is dropped.
+    const ch = String.fromCodePoint(text.codePointAt(i) ?? 0);
+    const w = charWidth(ch);
+    if (visible + w > limit) break;
+    out += ch;
+    visible += w;
+    i += ch.length;
   }
 
   // Reset only if we copied an escape, so a colorless line stays byte-clean.

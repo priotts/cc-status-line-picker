@@ -22,6 +22,19 @@ delete sample.$comment;
 
 const ANSI_RE = /\[[0-9;]*m/g;
 
+/**
+ * Terminal columns, the same rule as src/lib/ansi.ts: astral characters count
+ * once, wide CJK and emoji count twice, combining marks not at all.
+ */
+function displayWidth(line) {
+  let width = 0;
+  for (const ch of line.replace(ANSI_RE, '')) {
+    if (/^[\p{Mn}\p{Me}\u200B-\u200D\uFE00-\uFE0F]$/u.test(ch)) continue;
+    width += /^[\p{Emoji_Presentation}\u1100-\u115F\u2E80-\u303E\u3041-\u33FF\u3400-\u4DBF\u4E00-\u9FFF\uA000-\uA4CF\uAC00-\uD7A3\uF900-\uFAFF\uFE30-\uFE4F\uFF00-\uFF60\uFFE0-\uFFE6\u{20000}-\u{3FFFD}]$/u.test(ch) ? 2 : 1;
+  }
+  return width;
+}
+
 /** Payloads a style must survive. Fields are null or missing before the first API response. */
 const CASES = [
   { name: 'full sample', input: JSON.stringify(sample) },
@@ -132,8 +145,8 @@ for (const style of gallery.styles) {
       check(
         style.id,
         testCase.name,
-        line.replace(ANSI_RE, '').length <= 120,
-        `line exceeds COLUMNS=120: ${line.replace(ANSI_RE, '').length} chars`,
+        displayWidth(line) <= 120,
+        `line exceeds COLUMNS=120: ${displayWidth(line)} columns`,
       );
     }
   }
@@ -144,9 +157,29 @@ for (const style of gallery.styles) {
     check(
       style.id,
       'COLUMNS=40',
-      line.replace(ANSI_RE, '').length <= 40,
-      `line exceeds COLUMNS=40: ${line.replace(ANSI_RE, '').length} chars`,
+      displayWidth(line) <= 40,
+      `line exceeds COLUMNS=40: ${displayWidth(line)} columns`,
     );
+  }
+
+  // Wide and astral characters: measured in columns, never split in half.
+  // Odd widths are the ones that would cut a surrogate pair or a CJK glyph.
+  const wide = JSON.stringify({
+    ...sample,
+    workspace: { ...sample.workspace, current_dir: '/work/日本語のプロジェクト-𝒜𝒜𝒜𝒜𝒜𝒜𝒜𝒜𝒜𝒜𝒜𝒜-🚀🚀🚀🚀🚀🚀' },
+    model: { ...sample.model, display_name: 'Opus 🚀 测试模型' },
+  });
+  for (const cols of [41, 57, 83]) {
+    const out = runStyle(file, wide, { COLUMNS: String(cols) });
+    for (const line of out.replace(/\n$/, '').split('\n')) {
+      check(
+        style.id,
+        `wide chars COLUMNS=${cols}`,
+        displayWidth(line) <= cols,
+        `line exceeds COLUMNS=${cols}: ${displayWidth(line)} columns`,
+      );
+      check(style.id, `wide chars COLUMNS=${cols}`, !line.includes('\uFFFD'), 'split a character');
+    }
   }
 
   // NO_COLOR must strip every escape sequence.

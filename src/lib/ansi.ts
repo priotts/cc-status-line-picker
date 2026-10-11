@@ -120,9 +120,31 @@ export function thresholdSpec(pct: number): string {
 
 const ANSI_RE = /\[[0-9;]*m/g;
 
-/** Visible width, ignoring escape sequences. */
+/** Combining marks, zero-width joiners and variation selectors take no column. */
+const ZERO_WIDTH_RE = /^[\p{Mn}\p{Me}​-‍︀-️]$/u;
+
+/**
+ * East Asian wide / fullwidth characters and emoji drawn as emoji by default
+ * take two columns. The ranges follow wcwidth; Nerd Font glyphs live in the
+ * Private Use Area and stay at one.
+ */
+const WIDE_RE =
+  /^[\p{Emoji_Presentation}ᄀ-ᅟ⺀-〾ぁ-㏿㐀-䶿一-鿿ꀀ-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦\u{20000}-\u{3FFFD}]$/u;
+
+/** Terminal columns taken by a single code point. */
+export function charWidth(ch: string): number {
+  if (ZERO_WIDTH_RE.test(ch)) return 0;
+  return WIDE_RE.test(ch) ? 2 : 1;
+}
+
+/**
+ * Visible width in terminal columns, ignoring escape sequences. Counts code
+ * points, not UTF-16 units, so astral characters are not counted twice.
+ */
 export function visibleLength(text: string): number {
-  return text.replace(ANSI_RE, '').length;
+  let width = 0;
+  for (const ch of text.replace(ANSI_RE, '')) width += charWidth(ch);
+  return width;
 }
 
 export function stripAnsi(text: string): string {

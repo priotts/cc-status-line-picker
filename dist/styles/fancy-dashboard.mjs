@@ -160,8 +160,16 @@ function byThreshold(pct2, text) {
   return c.ok(text);
 }
 var ANSI_RE = /\[[0-9;]*m/g;
+var ZERO_WIDTH_RE = /^[\p{Mn}\p{Me}​-‍︀-️]$/u;
+var WIDE_RE = /^[\p{Emoji_Presentation}ᄀ-ᅟ⺀-〾ぁ-㏿㐀-䶿一-鿿ꀀ-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦\u{20000}-\u{3FFFD}]$/u;
+function charWidth(ch) {
+  if (ZERO_WIDTH_RE.test(ch)) return 0;
+  return WIDE_RE.test(ch) ? 2 : 1;
+}
 function visibleLength(text) {
-  return text.replace(ANSI_RE, "").length;
+  let width = 0;
+  for (const ch of text.replace(ANSI_RE, "")) width += charWidth(ch);
+  return width;
 }
 function stripAnsi(text) {
   return text.replace(ANSI_RE, "");
@@ -249,7 +257,7 @@ function truncate(text, width) {
   let visible = 0;
   let i = 0;
   let sawEscape = false;
-  while (i < text.length && visible < limit) {
+  while (i < text.length) {
     if (text.charCodeAt(i) === 27) {
       const end = text.indexOf("m", i);
       if (end === -1) break;
@@ -258,9 +266,12 @@ function truncate(text, width) {
       i = end + 1;
       continue;
     }
-    out += text[i];
-    visible += 1;
-    i += 1;
+    const ch = String.fromCodePoint(text.codePointAt(i) ?? 0);
+    const w = charWidth(ch);
+    if (visible + w > limit) break;
+    out += ch;
+    visible += w;
+    i += ch.length;
   }
   return `${out}${sawEscape ? RESET : ""}\u2026`;
 }
