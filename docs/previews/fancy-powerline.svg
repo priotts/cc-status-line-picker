@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="507" height="68" viewBox="0 0 507 68" role="img">
-<rect width="507" height="68" rx="6" fill="#16161e"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="516" height="68" viewBox="0 0 516 68" role="img">
+<rect width="516" height="68" rx="6" fill="#16161e"/>
 <g font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14">
 <rect x="13.5" y="12" width="68.2" height="22" fill="#444444"/>
 <text x="14" y="27.4" fill="#d0d0d0" textLength="67.2" lengthAdjust="spacing" xml:space="preserve"> ◆ Opus </text>
@@ -9,13 +9,13 @@
 <text x="89.60000000000001" y="27.4" fill="#ffffff" textLength="193.20000000000002" lengthAdjust="spacing" xml:space="preserve"> cc-status-line-picker </text>
 <rect x="282.3" y="12" width="9.4" height="22" fill="#303030"/>
 <polygon points="282.8,12 291.2,23 282.8,34" fill="#0087af"/>
-<rect x="290.7" y="12" width="76.60000000000001" height="22" fill="#303030"/>
-<text x="291.2" y="27.4" fill="#bcbcbc" textLength="75.60000000000001" lengthAdjust="spacing" xml:space="preserve"> ⎇ main* </text>
-<rect x="366.3" y="12" width="9.4" height="22" fill="#005f87"/>
-<polygon points="366.8,12 375.2,23 366.8,34" fill="#303030"/>
-<rect x="374.7" y="12" width="110.2" height="22" fill="#005f87"/>
-<text x="375.2" y="27.4" fill="#ffffff" textLength="109.2" lengthAdjust="spacing" xml:space="preserve"> $0.42 ◴ 12m </text>
-<polygon points="484.40000000000003,12 492.8,23 484.40000000000003,34" fill="#005f87"/>
+<rect x="290.7" y="12" width="68.2" height="22" fill="#303030"/>
+<text x="291.2" y="27.4" fill="#bcbcbc" textLength="67.2" lengthAdjust="spacing" xml:space="preserve"> ⎇ main </text>
+<rect x="357.90000000000003" y="12" width="9.4" height="22" fill="#005f87"/>
+<polygon points="358.40000000000003,12 366.8,23 358.40000000000003,34" fill="#303030"/>
+<rect x="366.3" y="12" width="110.2" height="22" fill="#005f87"/>
+<text x="366.8" y="27.4" fill="#ffffff" textLength="109.2" lengthAdjust="spacing" xml:space="preserve"> $0.42 ◴ 12m </text>
+<polygon points="476,12 484.4,23 476,34" fill="#005f87"/>
 <rect x="13.5" y="34" width="43" height="22" fill="#008700"/>
 <text x="14" y="49.4" fill="#bcbcbc" textLength="42" lengthAdjust="spacing" xml:space="preserve"> ctx </text>
 <rect x="55.5" y="34" width="34.6" height="22" fill="#008700"/>
@@ -26,17 +26,19 @@
 <text x="98" y="49.4" fill="#bcbcbc" textLength="33.6" lengthAdjust="spacing" xml:space="preserve"> 5h </text>
 <rect x="131.10000000000002" y="34" width="26.200000000000003" height="22" fill="#008700"/>
 <text x="131.60000000000002" y="49.4" fill="#ffffff" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">24%</text>
-<rect x="156.3" y="34" width="68.2" height="22" fill="#008700"/>
-<text x="156.8" y="49.4" fill="#bcbcbc" textLength="67.2" lengthAdjust="spacing" xml:space="preserve">  18:11 </text>
-<rect x="223.5" y="34" width="9.4" height="22" fill="#008700"/>
-<polyline points="225.26,38.84 230.72,45 225.26,51.16" fill="none" stroke="#bcbcbc" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
-<rect x="231.9" y="34" width="34.6" height="22" fill="#008700"/>
-<text x="232.4" y="49.4" fill="#bcbcbc" textLength="33.6" lengthAdjust="spacing" xml:space="preserve"> 7d </text>
-<rect x="265.5" y="34" width="26.200000000000003" height="22" fill="#008700"/>
-<text x="266" y="49.4" fill="#ffffff" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">41%</text>
-<rect x="290.7" y="34" width="51.400000000000006" height="22" fill="#008700"/>
-<text x="291.2" y="49.4" fill="#d7ffd7" textLength="50.400000000000006" lengthAdjust="spacing" xml:space="preserve"> → 60%</text>
-<rect x="341.1" y="34" width="101.80000000000001" height="22" fill="#008700"/>
-<text x="341.6" y="49.4" fill="#bcbcbc" textLength="100.80000000000001" lengthAdjust="spacing" xml:space="preserve">  Wed 19:00 </text>
-<polygon points="442.40000000000003,34 450.8,45 442.40000000000003,56" fill="#008700"/>
+<rect x="156.3" y="34" width="51.400000000000006" height="22" fill="#008700"/>
+<text x="156.8" y="49.4" fill="#d7ffd7" textLength="50.400000000000006" lengthAdjust="spacing" xml:space="preserve"> → 84%</text>
+<rect x="206.70000000000002" y="34" width="68.2" height="22" fill="#008700"/>
+<text x="207.20000000000002" y="49.4" fill="#bcbcbc" textLength="67.2" lengthAdjust="spacing" xml:space="preserve">  13:11 </text>
+<rect x="273.90000000000003" y="34" width="9.4" height="22" fill="#008700"/>
+<polyline points="275.66,38.84 281.12,45 275.66,51.16" fill="none" stroke="#bcbcbc" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" opacity="0.6"/>
+<rect x="282.3" y="34" width="34.6" height="22" fill="#008700"/>
+<text x="282.8" y="49.4" fill="#bcbcbc" textLength="33.6" lengthAdjust="spacing" xml:space="preserve"> 7d </text>
+<rect x="315.90000000000003" y="34" width="26.200000000000003" height="22" fill="#008700"/>
+<text x="316.40000000000003" y="49.4" fill="#ffffff" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">41%</text>
+<rect x="341.1" y="34" width="51.400000000000006" height="22" fill="#008700"/>
+<text x="341.6" y="49.4" fill="#d7ffd7" textLength="50.400000000000006" lengthAdjust="spacing" xml:space="preserve"> → 60%</text>
+<rect x="391.5" y="34" width="101.80000000000001" height="22" fill="#008700"/>
+<text x="392" y="49.4" fill="#bcbcbc" textLength="100.80000000000001" lengthAdjust="spacing" xml:space="preserve">  Tue 14:00 </text>
+<polygon points="492.8,34 501.2,45 492.8,56" fill="#008700"/>
 </g></svg>

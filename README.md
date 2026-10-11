@@ -33,7 +33,7 @@ percentages turn amber at 70 and red at 90.
 
 ### minimal
 
-<img src="docs/previews/minimal-basic.svg" alt="minimal/basic ◆ Opus · cc-status-line-picker · 38% ctx · 5h 24% · 7d 41%" width="760">
+<img src="docs/previews/minimal-basic.svg" alt="minimal/basic ◆ Opus high · cc-status-line-picker · 38% ctx · 5h 24% · 7d 41%" width="760">
 <img src="docs/previews/minimal-compact.svg" alt="minimal/compact cc-status-line-picker 38%" width="760">
 
 `basic` appends the effort level to the model, and shows the running agent (`@reviewer`)
@@ -45,8 +45,8 @@ terminal or `NO_COLOR` say. Neither style calls git. They are the two cheapest t
 
 ### git
 
-<img src="docs/previews/git-branch.svg" alt="git/branch ▸ cc-status-line-picker ⎇ main*" width="760">
-<img src="docs/previews/git-full.svg" alt="git/full ▸ cc-status-line-picker ⎇ main ○1 ⑂ #1234 pending" width="760">
+<img src="docs/previews/git-branch.svg" alt="git/branch ▸ cc-status-line-picker ⎇ main" width="760">
+<img src="docs/previews/git-full.svg" alt="git/full ▸ cc-status-line-picker ⎇ main clean ⑂ #1234 pending" width="760">
 
 `branch` gives you one thing: where you are, plus a yellow `*` when the tree is dirty. That
 asterisk is the entirety of what it reports about your working tree.
@@ -66,8 +66,8 @@ they do not, it is plain text. The same link appears wherever a style shows the 
 ### usage
 
 <img src="docs/previews/usage-tokens.svg" alt="usage/tokens ▤ ████░░░░░░ 38% · 76k/200k · in 75k out 1.2k" width="760">
-<img src="docs/previews/usage-cost.svg" alt="usage/cost $0.42 · ◴ 12m · +156 -23 · 5h 24% (4h11m · 17:05) · 7d 41% (2d5h · Wed 18:53)" width="760">
-<img src="docs/previews/usage-pace.svg" alt="usage/pace ◆ Opus high · ▸ cc-status-line-picker · ⎇ main* · ctx 38% · 5h 24% (17:05) · 7d 41%→61% (Wed 18:53)" width="760">
+<img src="docs/previews/usage-cost.svg" alt="usage/cost $0.42 · ◴ 12m · +156 -23 · 5h 24% (3h36m · 13:11) · 7d 41% (2d4h · Tue 14:00)" width="760">
+<img src="docs/previews/usage-pace.svg" alt="usage/pace ◆ Opus high · ▸ cc-status-line-picker · ⎇ main · ctx 38% · 5h 24%→84% (13:11) · 7d 41%→60% (Tue 14:00)" width="760">
 
 `tokens` reads the real window size from the payload, so a 1M-context model shows `/1M`
 instead of pretending everything is 200k. It also flags `>200k` when Claude Code sets
@@ -77,19 +77,19 @@ instead of pretending everything is 200k. It also flags `>200k` when Claude Code
 answers how long you have, the clock answers when you can start again. Set
 `showResetTime: false` to drop the clock half.
 
-`pace` is the projection without any bars. Read `41%→61%` as "at 41, heading for 61". It is
+`pace` is the projection without any bars. Read `41%→60%` as "at 41, heading for 60". It is
 the only style where model, effort and fast mode share a single segment. They read as one question, "what
 am I talking to", so they get one answer. Everything except the numbers is grey.
 
 ### fancy
 
-<img src="docs/previews/fancy-multiline.svg" alt="fancy/multiline ◆ Opus ▸ cc-status-line-picker ⎇ main ○1 ⑂ #1234" width="760">
+<img src="docs/previews/fancy-multiline.svg" alt="fancy/multiline ◆ Opus high “statusline gallery” ▸ cc-status-line-picker ⎇ main ⑂ #1234" width="760">
 
 Identity and repository state on top, consumption underneath. The top row also carries the
 session name when you have set one with `/rename`, plus the agent and vim mode when present. Each line truncates
 independently, so a narrow terminal loses the tail of a row rather than wrapping it.
 
-<img src="docs/previews/fancy-dashboard.svg" alt="fancy/dashboard ◆ Opus ▸ cc-status-line-picker ⎇ main ○1 ⑂ #1234" width="760">
+<img src="docs/previews/fancy-dashboard.svg" alt="fancy/dashboard ◆ Opus high “statusline gallery” ▸ cc-status-line-picker ⎇ main ⑂ #1234" width="760">
 
 Context and both rate-limit windows on one scale, stacked. That is the whole point: you can
 see which of the three runs out first, and no inline row gives you that comparison however
@@ -104,7 +104,7 @@ the rows stay aligned at every value. No table library is involved.
 
 With `showLimits: false` the last two rows disappear and the dashboard prints two lines.
 
-<img src="docs/previews/fancy-powerline.svg" alt="fancy/powerline ◆ Opus ▶ cc-status-line-picker ▶ ⎇ main* ▶ $0.42 ◴ 12m ▶" width="760">
+<img src="docs/previews/fancy-powerline.svg" alt="fancy/powerline ◆ Opus cc-status-line-picker ⎇ main $0.42 ◴ 12m" width="760">
 
 Read that image with some suspicion. The separators there are drawn as shapes, so they
 look right to everyone. In a terminal they are U+E0B0 and U+E0B1, two Private Use Area

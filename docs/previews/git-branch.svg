@@ -1,10 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="289" height="46" viewBox="0 0 289 46" role="img">
-<rect width="289" height="46" rx="6" fill="#16161e"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="46" viewBox="0 0 280 46" role="img">
+<rect width="280" height="46" rx="6" fill="#16161e"/>
 <g font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14">
 <text x="14" y="27.4" fill="#7dcfff" textLength="193.20000000000002" lengthAdjust="spacing" xml:space="preserve">▸ cc-status-line-picker</text>
 <text x="207.20000000000002" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
 <text x="215.60000000000002" y="27.4" fill="#414868" textLength="8.4" lengthAdjust="spacing" xml:space="preserve">⎇</text>
 <text x="224" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
 <text x="232.4" y="27.4" fill="#9ece6a" textLength="33.6" lengthAdjust="spacing" xml:space="preserve">main</text>
-<text x="266" y="27.4" fill="#e0af68" textLength="8.4" lengthAdjust="spacing" xml:space="preserve">*</text>
 </g></svg>

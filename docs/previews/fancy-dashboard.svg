@@ -1,19 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="591" height="112" viewBox="0 0 591 112" role="img">
-<rect width="591" height="112" rx="6" fill="#16161e"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="625" height="112" viewBox="0 0 625 112" role="img">
+<rect width="625" height="112" rx="6" fill="#16161e"/>
 <g font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14">
 <text x="14" y="27.4" fill="#414868" textLength="16.8" lengthAdjust="spacing" xml:space="preserve">◆ </text>
-<text x="30.8" y="27.4" fill="#c0caf5" textLength="42" lengthAdjust="spacing" xml:space="preserve">Opus </text>
-<text x="72.80000000000001" y="27.4" fill="#7dcfff" textLength="193.20000000000002" lengthAdjust="spacing" xml:space="preserve">▸ cc-status-line-picker</text>
-<text x="266" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
-<text x="274.40000000000003" y="27.4" fill="#414868" textLength="8.4" lengthAdjust="spacing" xml:space="preserve">⎇</text>
+<text x="30.8" y="27.4" fill="#c0caf5" textLength="33.6" lengthAdjust="spacing" xml:space="preserve">Opus</text>
+<text x="64.4" y="27.4" fill="#414868" textLength="42" lengthAdjust="spacing" xml:space="preserve"> high</text>
+<text x="106.4" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
+<text x="114.80000000000001" y="27.4" fill="#414868" textLength="168" lengthAdjust="spacing" xml:space="preserve">“statusline gallery”</text>
 <text x="282.8" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
-<text x="291.2" y="27.4" fill="#9ece6a" textLength="33.6" lengthAdjust="spacing" xml:space="preserve">main</text>
-<text x="324.8" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
-<text x="333.2" y="27.4" fill="#e0af68" textLength="16.8" lengthAdjust="spacing" xml:space="preserve">○4</text>
-<text x="350" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
-<text x="358.40000000000003" y="27.4" fill="#414868" textLength="16.8" lengthAdjust="spacing" xml:space="preserve">?4</text>
-<text x="375.2" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
-<text x="383.6" y="27.4" fill="#7dcfff" textLength="58.800000000000004" lengthAdjust="spacing" xml:space="preserve">⑂ #1234</text>
+<text x="291.2" y="27.4" fill="#7dcfff" textLength="193.20000000000002" lengthAdjust="spacing" xml:space="preserve">▸ cc-status-line-picker</text>
+<text x="484.40000000000003" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
+<text x="492.8" y="27.4" fill="#414868" textLength="8.4" lengthAdjust="spacing" xml:space="preserve">⎇</text>
+<text x="501.20000000000005" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
+<text x="509.6" y="27.4" fill="#9ece6a" textLength="33.6" lengthAdjust="spacing" xml:space="preserve">main</text>
+<text x="543.2" y="27.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
+<text x="551.6" y="27.4" fill="#7dcfff" textLength="58.800000000000004" lengthAdjust="spacing" xml:space="preserve">⑂ #1234</text>
 <text x="14" y="49.4" fill="#414868" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">ctx</text>
 <text x="39.2" y="49.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
 <text x="47.6" y="49.4" fill="#9ece6a" textLength="117.60000000000001" lengthAdjust="spacing" xml:space="preserve">█████▎░░░░░░░░</text>
@@ -32,14 +32,16 @@
 <text x="165.20000000000002" y="71.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
 <text x="173.6" y="71.4" fill="#9ece6a" textLength="33.6" lengthAdjust="spacing" xml:space="preserve">24% </text>
 <text x="207.20000000000002" y="71.4" fill="#c0caf5" textLength="16.8" lengthAdjust="spacing" xml:space="preserve">  </text>
-<text x="224" y="71.4" fill="#414868" textLength="168" lengthAdjust="spacing" xml:space="preserve">resets 18:11 (4h04m)</text>
+<text x="224" y="71.4" fill="#414868" textLength="168" lengthAdjust="spacing" xml:space="preserve">resets 13:11 (3h36m)</text>
+<text x="392" y="71.4" fill="#c0caf5" textLength="16.8" lengthAdjust="spacing" xml:space="preserve">  </text>
+<text x="408.8" y="71.4" fill="#414868" textLength="142.8" lengthAdjust="spacing" xml:space="preserve">▸ on pace for 84%</text>
 <text x="14" y="93.4" fill="#414868" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve"> 7d</text>
 <text x="39.2" y="93.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
 <text x="47.6" y="93.4" fill="#9ece6a" textLength="117.60000000000001" lengthAdjust="spacing" xml:space="preserve">█████▊░░░░░░░░</text>
 <text x="165.20000000000002" y="93.4" fill="#c0caf5" textLength="8.4" lengthAdjust="spacing" xml:space="preserve"> </text>
 <text x="173.6" y="93.4" fill="#9ece6a" textLength="33.6" lengthAdjust="spacing" xml:space="preserve">41% </text>
 <text x="207.20000000000002" y="93.4" fill="#c0caf5" textLength="16.8" lengthAdjust="spacing" xml:space="preserve">  </text>
-<text x="224" y="93.4" fill="#414868" textLength="193.20000000000002" lengthAdjust="spacing" xml:space="preserve">resets Wed 19:00 (2d4h)</text>
+<text x="224" y="93.4" fill="#414868" textLength="193.20000000000002" lengthAdjust="spacing" xml:space="preserve">resets Tue 14:00 (2d4h)</text>
 <text x="417.20000000000005" y="93.4" fill="#c0caf5" textLength="16.8" lengthAdjust="spacing" xml:space="preserve">  </text>
 <text x="434" y="93.4" fill="#414868" textLength="142.8" lengthAdjust="spacing" xml:space="preserve">▸ on pace for 60%</text>
 </g></svg>
