@@ -85,11 +85,15 @@ function applySgr(state, params) {
 const ESC = String.fromCharCode(27);
 const SGR_PATTERN = `${ESC}\\[([0-9;]*)m`;
 
+/** OSC 8 hyperlinks carry no style and an SVG cannot click through: dropped. */
+const OSC8_RE = new RegExp(`${ESC}\\]8;[^\\u0007${ESC}]*(?:\\u0007|${ESC}\\\\)`, 'g');
+
 /**
  * Splits one line into `{ text, fg, bg, bold, dim }` segments.
  * Adjacent runs sharing a style are merged so the DOM stays small.
  */
-export function parseLine(line) {
+export function parseLine(raw) {
+  const line = raw.replace(OSC8_RE, '');
   const segments = [];
   const state = { ...EMPTY_STATE };
   const re = new RegExp(SGR_PATTERN, 'g');

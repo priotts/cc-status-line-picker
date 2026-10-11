@@ -1,16 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="516" height="46" viewBox="0 0 516 46" role="img">
-<rect width="516" height="46" rx="6" fill="#16161e"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="558" height="46" viewBox="0 0 558 46" role="img">
+<rect width="558" height="46" rx="6" fill="#16161e"/>
 <g font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace" font-size="14">
-<text x="14" y="27.4" fill="#414868" textLength="50.400000000000006" lengthAdjust="spacing" xml:space="preserve">◆ Opus</text>
-<text x="64.4" y="27.4" fill="#c0caf5" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve"> · </text>
-<text x="89.60000000000001" y="27.4" fill="#7dcfff" textLength="176.4" lengthAdjust="spacing" xml:space="preserve">cc-status-line-picker</text>
-<text x="266" y="27.4" fill="#c0caf5" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve"> · </text>
-<text x="291.2" y="27.4" fill="#9ece6a" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">38%</text>
-<text x="316.40000000000003" y="27.4" fill="#414868" textLength="33.6" lengthAdjust="spacing" xml:space="preserve"> ctx</text>
-<text x="350" y="27.4" fill="#c0caf5" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve"> · </text>
-<text x="375.2" y="27.4" fill="#414868" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">5h </text>
-<text x="400.40000000000003" y="27.4" fill="#9ece6a" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">24%</text>
-<text x="425.6" y="27.4" fill="#c0caf5" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve"> · </text>
-<text x="450.8" y="27.4" fill="#414868" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">7d </text>
-<text x="476" y="27.4" fill="#9ece6a" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">41%</text>
+<text x="14" y="27.4" fill="#414868" textLength="92.4" lengthAdjust="spacing" xml:space="preserve">◆ Opus high</text>
+<text x="106.4" y="27.4" fill="#c0caf5" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve"> · </text>
+<text x="131.60000000000002" y="27.4" fill="#7dcfff" textLength="176.4" lengthAdjust="spacing" xml:space="preserve">cc-status-line-picker</text>
+<text x="308" y="27.4" fill="#c0caf5" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve"> · </text>
+<text x="333.2" y="27.4" fill="#9ece6a" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">38%</text>
+<text x="358.40000000000003" y="27.4" fill="#414868" textLength="33.6" lengthAdjust="spacing" xml:space="preserve"> ctx</text>
+<text x="392" y="27.4" fill="#c0caf5" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve"> · </text>
+<text x="417.20000000000005" y="27.4" fill="#414868" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">5h </text>
+<text x="442.40000000000003" y="27.4" fill="#9ece6a" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">24%</text>
+<text x="467.6" y="27.4" fill="#c0caf5" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve"> · </text>
+<text x="492.8" y="27.4" fill="#414868" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">7d </text>
+<text x="518" y="27.4" fill="#9ece6a" textLength="25.200000000000003" lengthAdjust="spacing" xml:space="preserve">41%</text>
 </g></svg>

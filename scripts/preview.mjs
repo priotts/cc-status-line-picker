@@ -16,6 +16,8 @@ import { readFileSync, existsSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
+/** OSC 8 hyperlink open/close sequences, terminated by ST or BEL. */
+const OSC8_RE = /\u001b\]8;[^\u0007\u001b]*(?:\u0007|\u001b\\)/g;
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 function fail(message) {
@@ -55,7 +57,9 @@ function renderStyle(style, payload) {
       env: { ...process.env, COLUMNS: process.env.COLUMNS ?? '120' },
       windowsHide: true,
     });
-    return { output: output.replace(/\n$/, '') };
+    // OSC 8 links are dropped: a preview is something to look at, not to click,
+    // and the URL inside them would survive a naive strip of the color codes.
+    return { output: output.replace(/\n$/, '').replace(OSC8_RE, '') };
   } catch (error) {
     return { error: error instanceof Error ? error.message : String(error) };
   }

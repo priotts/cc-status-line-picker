@@ -2,9 +2,10 @@
  * Composite segments shared by more than one style.
  */
 import { loadConfig } from './config.js';
-import { c, byThreshold } from './ansi.js';
+import { c, byThreshold, link } from './ansi.js';
 import { pct, resetsIn, resetsAtClock } from './format.js';
-import type { RateLimitWindow } from '../types.js';
+import type { GitInfo } from './git.js';
+import type { PullRequestInfo, RateLimitWindow, StatusLineInput, VimMode } from '../types.js';
 
 /** Nominal length of each rate-limit window, in seconds. */
 export const WINDOW_SECONDS = { '5h': 5 * 3600, '7d': 7 * 86_400 } as const;
@@ -107,4 +108,55 @@ export function paceSegment(
   }
 
   return out;
+}
+
+/**
+ * Working-tree markers: `✗2 ●3 ○1 ?2`. Conflicts come first and in red — they
+ * block everything else. Empty when the tree is clean.
+ */
+export function fileMarkers(git: GitInfo): string[] {
+  const { icons } = loadConfig();
+  const out: string[] = [];
+  if (git.conflicted > 0) out.push(c.danger(`${icons.conflict}${git.conflicted}`));
+  if (git.staged > 0) out.push(c.ok(`${icons.staged}${git.staged}`));
+  if (git.modified > 0) out.push(c.warn(`${icons.modified}${git.modified}`));
+  if (git.untracked > 0) out.push(c.muted(`${icons.untracked}${git.untracked}`));
+  return out;
+}
+
+/**
+ * The open pull request, `⑂ #1234`, as a clickable link to it when the
+ * terminal supports OSC 8. Null when there is no PR.
+ */
+export function prSegment(pr: PullRequestInfo | null | undefined): string | null {
+  if (typeof pr?.number !== 'number') return null;
+  return link(pr.url, c.accent(`${loadConfig().icons.pr} #${pr.number}`));
+}
+
+/** ` high` after the model name, so the effort reads as part of it. */
+export function effortTag(input: StatusLineInput): string {
+  const level = input.effort?.level;
+  return level && loadConfig().showSession ? c.muted(` ${level}`) : '';
+}
+
+function vimColor(mode: VimMode): (t: string) => string {
+  if (mode === 'INSERT') return c.ok;
+  if (mode === 'NORMAL') return c.accent;
+  return c.warn;
+}
+
+/**
+ * Who and how: the session name (when `withName`), the running agent `@name`
+ * and the vim mode. Each part shows only when Claude Code sends it, so on a
+ * plain session this is null and costs no space.
+ */
+export function sessionSegment(input: StatusLineInput, withName = false): string | null {
+  const cfg = loadConfig();
+  if (!cfg.showSession) return null;
+
+  const parts: string[] = [];
+  if (withName && input.session_name) parts.push(c.muted(`“${input.session_name}”`));
+  if (input.agent?.name) parts.push(c.accent(`${cfg.icons.agent}${input.agent.name}`));
+  if (input.vim?.mode) parts.push(vimColor(input.vim.mode)(input.vim.mode));
+  return parts.length > 0 ? parts.join(' ') : null;
 }

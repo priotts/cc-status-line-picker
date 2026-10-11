@@ -28,7 +28,7 @@ import {
   resetsAtClock,
   resetsIn,
 } from '../lib/format.js';
-import { projectedUsage, WINDOW_SECONDS, type WindowLabel } from '../lib/segments.js';
+import { projectedUsage, WINDOW_SECONDS, type WindowLabel, effortTag, fileMarkers, prSegment, sessionSegment } from '../lib/segments.js';
 import type { RateLimitWindow } from '../types.js';
 
 /** Wider than the other styles because the layout has the room for it. */
@@ -74,8 +74,10 @@ run((input) => {
 
   if (cfg.showModel && input.model?.display_name) {
     const fast = input.fast_mode ? c.warn(` ${cfg.icons.fast}`) : '';
-    top.push(c.muted(`${cfg.icons.model} `) + input.model.display_name + fast);
+    top.push(c.muted(`${cfg.icons.model} `) + input.model.display_name + effortTag(input) + fast);
   }
+
+  top.push(sessionSegment(input, true));
 
   top.push(c.accent(`${cfg.icons.folder} ${basename(cwd)}`));
 
@@ -86,17 +88,13 @@ run((input) => {
     const changes: string[] = [];
     if (git.ahead > 0) changes.push(c.accent(`${cfg.icons.ahead}${git.ahead}`));
     if (git.behind > 0) changes.push(c.warn(`${cfg.icons.behind}${git.behind}`));
-    if (git.staged > 0) changes.push(c.ok(`${cfg.icons.staged}${git.staged}`));
-    if (git.modified > 0) changes.push(c.warn(`${cfg.icons.modified}${git.modified}`));
-    if (git.untracked > 0) changes.push(c.muted(`${cfg.icons.untracked}${git.untracked}`));
+    changes.push(...fileMarkers(git));
     if (changes.length > 0) top.push(changes.join(' '));
   }
 
   const worktree = input.workspace?.git_worktree ?? input.worktree?.name;
   if (worktree) top.push(c.muted(`${cfg.icons.worktree} ${worktree}`));
-  if (typeof input.pr?.number === 'number') {
-    top.push(c.accent(`${cfg.icons.pr} #${input.pr.number}`));
-  }
+  top.push(prSegment(input.pr));
 
   // Line 2 — context, with the session totals alongside it.
   const ctxUsed = pct(input.context_window?.used_percentage);

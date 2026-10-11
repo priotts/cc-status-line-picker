@@ -28,11 +28,13 @@ var DEFAULT_CONFIG = {
     staged: "\u25CF",
     modified: "\u25CB",
     untracked: "?",
+    conflict: "\u2717",
     ahead: "\u2191",
     behind: "\u2193",
     pr: "\u2442",
     worktree: "\u29C9",
-    fast: "\u26A1"
+    fast: "\u26A1",
+    agent: "@"
   },
   separator: " \xB7 ",
   barWidth: 10,
@@ -42,6 +44,8 @@ var DEFAULT_CONFIG = {
   showCost: true,
   showLimits: true,
   showResetTime: true,
+  showSession: true,
+  links: true,
   defaultBranches: ["main", "master"],
   thresholds: { warn: 70, danger: 90 }
 };
@@ -92,6 +96,8 @@ function merge(base, override) {
       case "showCost":
       case "showLimits":
       case "showResetTime":
+      case "showSession":
+      case "links":
         if (typeof value === "boolean") out[key] = value;
         break;
     }
@@ -146,6 +152,9 @@ function fg(spec, text) {
   if (!colorEnabled || !text) return text;
   return `${CSI}${fgCode(spec)}m${text}${RESET}`;
 }
+var OSC = "\x1B]";
+var ST = "\x1B\\";
+var LINK_END = `${OSC}8;;${ST}`;
 var c = {
   accent: (t) => fg(loadConfig().colors.accent, t),
   ok: (t) => fg(loadConfig().colors.ok, t),
@@ -159,9 +168,17 @@ function byThreshold(pct2, text) {
   if (pct2 >= thresholds.warn) return c.warn(text);
   return c.ok(text);
 }
-var ANSI_RE = /\[[0-9;]*m/g;
+var ANSI_RE = /\u001b\[[0-9;]*m|\u001b\]8;[^\u0007\u001b]*(?:\u0007|\u001b\\)/g;
+var ZERO_WIDTH_RE = /^[\p{Mn}\p{Me}​-‍︀-️]$/u;
+var WIDE_RE = /^[\p{Emoji_Presentation}ᄀ-ᅟ⺀-〾ぁ-㏿㐀-䶿一-鿿ꀀ-꓏가-힣豈-﫿︰-﹏＀-｠￠-￦\u{20000}-\u{3FFFD}]$/u;
+function charWidth(ch) {
+  if (ZERO_WIDTH_RE.test(ch)) return 0;
+  return WIDE_RE.test(ch) ? 2 : 1;
+}
 function visibleLength(text) {
-  return text.replace(ANSI_RE, "").length;
+  let width = 0;
+  for (const ch of text.replace(ANSI_RE, "")) width += charWidth(ch);
+  return width;
 }
 function stripAnsi(text) {
   return text.replace(ANSI_RE, "");
@@ -230,7 +247,19 @@ function truncate(text, width) {
   let visible = 0;
   let i = 0;
   let sawEscape = false;
-  while (i < text.length && visible < limit) {
+  let inLink = false;
+  while (i < text.length) {
+    if (text.charCodeAt(i) === 27 && text[i + 1] === "]") {
+      const st = text.indexOf("\x1B\\", i + 2);
+      const bel = text.indexOf("\x07", i + 2);
+      const end = bel !== -1 && (st === -1 || bel < st) ? bel + 1 : st === -1 ? -1 : st + 2;
+      if (end === -1) break;
+      const seq = text.slice(i, end);
+      inLink = !/^\u001b\]8;[^;]*;(?:\u0007|\u001b\\)$/.test(seq);
+      out += seq;
+      i = end;
+      continue;
+    }
     if (text.charCodeAt(i) === 27) {
       const end = text.indexOf("m", i);
       if (end === -1) break;
@@ -239,11 +268,14 @@ function truncate(text, width) {
       i = end + 1;
       continue;
     }
-    out += text[i];
-    visible += 1;
-    i += 1;
+    const ch = String.fromCodePoint(text.codePointAt(i) ?? 0);
+    const w = charWidth(ch);
+    if (visible + w > limit) break;
+    out += ch;
+    visible += w;
+    i += ch.length;
   }
-  return `${out}${sawEscape ? RESET : ""}\u2026`;
+  return `${out}${inLink ? LINK_END : ""}${sawEscape ? RESET : ""}\u2026`;
 }
 function printLines(lines) {
   const width = terminalWidth();

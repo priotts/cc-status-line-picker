@@ -2,7 +2,7 @@
  * Formatting helpers shared by every style.
  */
 import { loadConfig } from './config.js';
-import { visibleLength, stripAnsi, RESET } from './ansi.js';
+import { visibleLength, stripAnsi, charWidth, LINK_END, RESET } from './ansi.js';
 
 /** Clamp a possibly-null percentage into 0..100. */
 export function pct(value: number | null | undefined): number {
@@ -128,7 +128,8 @@ export function terminalWidth(): number {
 /**
  * Truncate to the visible width, keeping ANSI sequences intact.
  * Walks the string once, copying escape sequences for free and counting only
- * printable characters, then appends a reset so color never bleeds.
+ * printable characters by the columns they take, then appends a reset so color
+ * never bleeds.
  */
 export function truncate(text: string, width?: number): string {
   const max = width ?? terminalWidth();
@@ -140,8 +141,21 @@ export function truncate(text: string, width?: number): string {
   let visible = 0;
   let i = 0;
   let sawEscape = false;
+  let inLink = false;
 
-  while (i < text.length && visible < limit) {
+  while (i < text.length) {
+    if (text.charCodeAt(i) === 0x1b && text[i + 1] === ']') {
+      // OSC 8 hyperlink: ends at ST (ESC \) or BEL. An empty URL closes one.
+      const st = text.indexOf('\u001b\\', i + 2);
+      const bel = text.indexOf('\u0007', i + 2);
+      const end = bel !== -1 && (st === -1 || bel < st) ? bel + 1 : st === -1 ? -1 : st + 2;
+      if (end === -1) break;
+      const seq = text.slice(i, end);
+      inLink = !/^\u001b\]8;[^;]*;(?:\u0007|\u001b\\)$/.test(seq);
+      out += seq;
+      i = end;
+      continue;
+    }
     if (text.charCodeAt(i) === 0x1b) {
       const end = text.indexOf('m', i);
       if (end === -1) break;
@@ -150,13 +164,19 @@ export function truncate(text: string, width?: number): string {
       i = end + 1;
       continue;
     }
-    out += text[i];
-    visible += 1;
-    i += 1;
+    // Whole code points only: slicing by UTF-16 unit would split a surrogate
+    // pair and print U+FFFD. A wide character that does not fit is dropped.
+    const ch = String.fromCodePoint(text.codePointAt(i) ?? 0);
+    const w = charWidth(ch);
+    if (visible + w > limit) break;
+    out += ch;
+    visible += w;
+    i += ch.length;
   }
 
+  // Close a link the cut landed inside, or the rest of the bar stays clickable.
   // Reset only if we copied an escape, so a colorless line stays byte-clean.
-  return `${out}${sawEscape ? RESET : ''}…`;
+  return `${out}${inLink ? LINK_END : ''}${sawEscape ? RESET : ''}…`;
 }
 
 /** Applies `truncate` per line: a multi-line style must not wrap either. */

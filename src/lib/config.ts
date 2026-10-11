@@ -39,11 +39,13 @@ export interface Config {
     staged: string;
     modified: string;
     untracked: string;
+    conflict: string;
     ahead: string;
     behind: string;
     pr: string;
     worktree: string;
     fast: string;
+    agent: string;
   };
   separator: string;
   barWidth: number;
@@ -54,6 +56,10 @@ export interface Config {
   showLimits: boolean;
   /** Append the wall-clock reset time next to the countdown, e.g. `(4h11m · 18:30)`. */
   showResetTime: boolean;
+  /** Agent name, vim mode, session name and effort level, where a style has room. */
+  showSession: boolean;
+  /** Make the PR number a clickable OSC 8 link to the pull request. */
+  links: boolean;
   /**
    * Branch names treated as "the trunk". Anything else is a feature branch and
    * `fancy/powerline` tints it differently. A list because the convention is
@@ -83,11 +89,13 @@ export const DEFAULT_CONFIG: Config = {
     staged: '●',
     modified: '○',
     untracked: '?',
+    conflict: '✗',
     ahead: '↑',
     behind: '↓',
     pr: '⑂',
     worktree: '⧉',
     fast: '⚡',
+    agent: '@',
   },
   separator: ' · ',
   barWidth: 10,
@@ -97,6 +105,8 @@ export const DEFAULT_CONFIG: Config = {
   showCost: true,
   showLimits: true,
   showResetTime: true,
+  showSession: true,
+  links: true,
   defaultBranches: ['main', 'master'],
   thresholds: { warn: 70, danger: 90 },
 };
@@ -152,6 +162,8 @@ function merge(base: Config, override: Record<string, unknown>): Config {
       case 'showCost':
       case 'showLimits':
       case 'showResetTime':
+      case 'showSession':
+      case 'links':
         if (typeof value === 'boolean') out[key] = value;
         break;
     }

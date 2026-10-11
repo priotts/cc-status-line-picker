@@ -25,7 +25,9 @@ export interface GitInfo {
   staged: number;
   modified: number;
   untracked: number;
-  /** True when there is nothing staged, modified or untracked. */
+  /** Unmerged paths left by a merge, rebase or cherry-pick. */
+  conflicted: number;
+  /** True when there is nothing staged, modified, untracked or conflicted. */
   clean: boolean;
 }
 
@@ -79,6 +81,8 @@ function git(cwd: string, args: string[]): string | null {
  * Header: `## main...origin/main [ahead 1, behind 2]`, or `## main` with no
  * upstream, or `## HEAD (no branch)` when detached.
  * Entries: two status columns, `X` = staged, `Y` = worktree, `??` = untracked.
+ * Unmerged paths (`UU`, `AA`, `DD`, or a `U` on either side) are conflicts,
+ * counted on their own rather than as both staged and modified.
  */
 function parseStatus(output: string): GitInfo {
   const info: GitInfo = {
@@ -89,6 +93,7 @@ function parseStatus(output: string): GitInfo {
     staged: 0,
     modified: 0,
     untracked: 0,
+    conflicted: 0,
     clean: true,
   };
 
@@ -116,11 +121,16 @@ function parseStatus(output: string): GitInfo {
       info.untracked += 1;
       continue;
     }
+    if (x === 'U' || y === 'U' || (x === 'A' && y === 'A') || (x === 'D' && y === 'D')) {
+      info.conflicted += 1;
+      continue;
+    }
     if (x && x !== ' ') info.staged += 1;
     if (y && y !== ' ') info.modified += 1;
   }
 
-  info.clean = info.staged === 0 && info.modified === 0 && info.untracked === 0;
+  info.clean =
+    info.staged === 0 && info.modified === 0 && info.untracked === 0 && info.conflicted === 0;
   return info;
 }
 
